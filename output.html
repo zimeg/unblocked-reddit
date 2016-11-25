@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<!--
+  Stuart Powers
+  http://sente.cc/
+  http://twitter.com/stuartpowers
+-->
+
+<html>
+  <head>
+    <script src="http://j.mp/jqymin"></script>
+  </head>
+
+  <body>
+    <div id="reddit-content">
+    </div>
+
+    <script>
+      $.getJSON(
+        "http://www.reddit.com/r/all.json",
+        function foo(data)
+        {
+          $.each(
+            data.data.children.slice(0, 25),
+            function (i, post) {
+              $("#reddit-content").append( '<br>' + post.data.title );
+                $("#reddit-content").append( '<br>' + post.data.subreddit);
+              $("#reddit-content").append( '<br>' + post.data.url );
+              $("#reddit-content").append( '<br>'+ post.data.permalink);
+              $("#reddit-content").append( '<br>' + post.data.ups );
+              $("#reddit-content").append( '<hr>' );
+            }
+          )
+        }
+      )
+    </script>
+
+  </body>
+</html>
