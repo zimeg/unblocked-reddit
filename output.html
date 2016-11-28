@@ -1,39 +1,149 @@
 <!DOCTYPE html>
 
 <!--
-  Stuart Powers
-  http://sente.cc/
-  http://twitter.com/stuartpowers
+  Original script code was provided by Stuart Powers
+  http://sente.cc/   http://twitter.com/stuartpowers
 -->
 
 <html>
-  <head>
-    <script src="http://j.mp/jqymin"></script>
-  </head>
+    <head>
+        <script src="http://j.mp/jqymin"></script>
+    </head>
 
-  <body>
-    <div id="reddit-content">
-    </div>
-
-    <script>
-      $.getJSON(
-        "http://www.reddit.com/r/all.json",
-        function foo(data)
-        {
-          $.each(
-            data.data.children.slice(0, 25),
-            function (i, post) {
-              $("#reddit-content").append( '<br>' + post.data.title );
-                $("#reddit-content").append( '<br>' + post.data.subreddit);
-              $("#reddit-content").append( '<br>' + post.data.url );
-              $("#reddit-content").append( '<br>'+ post.data.permalink);
-              $("#reddit-content").append( '<br>' + post.data.ups );
-              $("#reddit-content").append( '<hr>' );
+    <body>
+        
+        <div id="reddit-content">
+        </div>
+        
+        <script>
+        var destination=window.location.search.substring(6);
+        var destinationURL="http://www.reddit.com"+destination;
+        
+        var masterSub="";
+        
+        $.getJSON(
+            destinationURL,
+            function foo(data) {
+                $.each(
+                    data.data.children.slice(0, 1),
+                    function (i, post) {
+                        if(destination.substring(3,6)=="all")
+                            masterSub="all";
+                        else
+                            masterSub=post.data.subreddit;
+                        
+                        var exactLoc=destination.substring(3+masterSub.length+1);
+                        var sortedLoc="";
+                        
+                        if(exactLoc.length>3) {
+                            if(exactLoc=="hot.json"){
+                                sortedLoc="hot";
+                            } else if(exactLoc.substring(0,3)=="new") {
+                                sortedLoc="new";
+                            } else if(exactLoc.substring(0,3)=="top") {
+                                sortedLoc="top";
+                            }
+                        }
+                        
+                        $("#reddit-content").append('<h1 style="background: lightblue">Unblocked Reddit - /r/'+masterSub+'</h1>');
+                        
+                        
+                        <!-- TO ADD SPECIFIC INFO ABOUT WHERE IN SUB U R, USE afterSub, CHECK LENGTH, THEN IF TOP OR CONTROVERSIAL, CHECK TIME. ADD THIS TO TOP THINGY -->
+                        
+                        
+                        var link="<a href='output.html?link=/r/"+masterSub;
+                        var hotLink=link+"/hot.json'>hot</a>";
+                        var newLink=link+"/new.json'>new</a>";
+                        var risingLink=link+"/rising.json'>rising</a>";
+                        
+                        var controversialLink=link+"/controversial.json'>controversial</a>";
+                        var topLink=link+"/top.json'>top</a>";
+                        
+                        var hourContro=link+"/controversial/.json?sort=controversial&t=hour'>hour</a>";
+                        var dayContro=link+"/controversial/.json?sort=controversial&t=day'>day</a>";
+                        var weekContro=link+"/controversial/.json?sort=controversial&t=week'>week</a>";
+                        var monthContro=link+"/controversial/.json?sort=controversial&t=month'>month</a>";
+                        var yearContro=link+"/controversial/.json?sort=controversial&t=year'>year</a>";
+                        var allContro=link+"/controversial/.json?sort=controversial&t=all'>all</a>";
+                        
+                        var hourTop=link+"/top/.json?sort=top&t=hour'>hour</a>";
+                        var dayTop=link+"/top/.json?sort=top&t=day'>day</a>";
+                        var weekTop=link+"/top/.json?sort=top&t=week'>week</a>";
+                        var monthTop=link+"/top/.json?sort=top&t=month'>month</a>";
+                        var yearTop=link+"/top/.json?sort=top&t=year'>year</a>";
+                        var allTop=link+"/top/.json?sort=top&t=all'>all</a>";
+                        
+                        $("#reddit-content").append(hotLink+" "+newLink+" "+risingLink+" "+controversialLink+" "+topLink);
+                        
+                        
+                        var afterSub=destination.substring(3+masterSub.length+1);
+                        if(afterSub.length>13) {
+                            if(afterSub.substring(0,13)=="controversial") {
+                                $("#reddit-content").append('<br />');
+                                $("#reddit-content").append(hourContro+" "+dayContro+" "+weekContro+" "+monthContro+" "+yearContro+" "+allContro);
+                            }
+                        }
+                        else if(afterSub.substring(0,3)=="top") {
+                            $("#reddit-content").append('<br />');
+                            $("#reddit-content").append(hourTop+" "+dayTop+" "+weekTop+" "+monthTop+" "+yearTop+" "+allTop);
+                        }
+                                
+                                    
+                        $("#reddit-content").append('<br />');
+                    }
+                )
             }
-          )
+        )
+        
+        if(destinationURL.indexOf("/comments/")>-1) {
+            $("#reddit-content").append('<h1>COMMENTS</h1>');
+            
+            $.getJSON(
+                destinationURL,
+                function foo(result) {
+                    $.each(
+                        result[1].data.children.slice(0, 50),
+                        function (i, post) {
+                            $("#reddit-content").append( '<br>' + post.data.body );
+                            $("#reddit-content").append( '<hr>' );
+                        }
+                    )
+                }
+            )
         }
-      )
-    </script>
+        
+        $.getJSON(
+            destinationURL,
+            function foo(data) {
+                $.each(
+                    data.data.children.slice(0, 50),
+                    function (i, post) {
 
-  </body>
+                        var destination=post.data.permalink;
+                        var commentsURL='<a href="output.html?link='+destination+'.json">comments</a>';
+                        
+                        var link=post.data.url;
+                        var linkURL='<a href='+link+'>link</a> - ';
+                        if(post.data.is_self)
+                            linkURL="";
+
+                        var isNSFW="";
+                        if(post.data.over_18)
+                            isNSFW="[NSFW] ";
+                        
+                        var sub=post.data.subreddit;
+                        var subURL="";
+                        if(location.search.substring(9,12)=="all")
+                            var subURL='<a href=output.html?link=/r/'+sub+'.json>['+sub+']</a> ';
+                        
+                        $("#reddit-content").append( '<br>'+subURL+isNSFW+ post.data.title );
+                        $("#reddit-content").append('<br>'+linkURL+commentsURL+' - '+post.data.ups);
+                        $("#reddit-content").append( '<hr>' );
+                    }
+                )
+            }
+        )
+        
+        </script>
+    </body>
 </html>
