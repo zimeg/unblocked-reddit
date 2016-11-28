@@ -8,6 +8,7 @@
 <html>
     <head>
         <script src="http://j.mp/jqymin"></script>
+        <title>Unblocked Reddit</title>
     </head>
 
     <body>
@@ -18,15 +19,15 @@
         <script>
         var destination=window.location.search.substring(6);
         var destinationURL="http://www.reddit.com"+destination;
-        
-        var masterSub="";
-        
+            
+        <!-- displays header and links associated with subreddits -->
         $.getJSON(
             destinationURL,
             function foo(data) {
                 $.each(
                     data.data.children.slice(0, 1),
                     function (i, post) {
+                        var masterSub="";
                         if(destination.substring(3,6)=="all")
                             masterSub="all";
                         else
@@ -35,21 +36,35 @@
                         var exactLoc=destination.substring(3+masterSub.length+1);
                         var sortedLoc="";
                         
-                        if(exactLoc.length>3) {
-                            if(exactLoc=="hot.json"){
+                        if(exactLoc.length>4) {
+                            if(exactLoc.substring(0,3)=="hot"){
                                 sortedLoc="hot";
                             } else if(exactLoc.substring(0,3)=="new") {
                                 sortedLoc="new";
                             } else if(exactLoc.substring(0,3)=="top") {
-                                sortedLoc="top";
+                                var specificTime="";
+                                if(exactLoc.length>21)
+                                    specificTime="/"+exactLoc.substring(21);
+                                sortedLoc="top"+specificTime;
+                            }
+                            
+                            if(exactLoc.length>6) {
+                                if(exactLoc.substring(0,6)=="rising") {
+                                    sortedLoc="rising";
+                                }
+                            }
+                            
+                            if(exactLoc.length>13) {
+                                if(exactLoc.substring(0,13)=="controversial") {
+                                    var specificTime="";
+                                    if(location.search.length>41)
+                                        specificTime="/"+exactLoc.substring(41);
+                                    sortedLoc="controversial"+specificTime;
+                                }
                             }
                         }
                         
-                        $("#reddit-content").append('<h1 style="background: lightblue">Unblocked Reddit - /r/'+masterSub+'</h1>');
-                        
-                        
-                        <!-- TO ADD SPECIFIC INFO ABOUT WHERE IN SUB U R, USE afterSub, CHECK LENGTH, THEN IF TOP OR CONTROVERSIAL, CHECK TIME. ADD THIS TO TOP THINGY -->
-                        
+                        $("#reddit-content").append('<h1 style="background: lightblue; line-height: 1;">Unblocked Reddit - /r/'+masterSub+"/"+sortedLoc+'</h1>');
                         
                         var link="<a href='output.html?link=/r/"+masterSub;
                         var hotLink=link+"/hot.json'>hot</a>";
@@ -73,7 +88,9 @@
                         var yearTop=link+"/top/.json?sort=top&t=year'>year</a>";
                         var allTop=link+"/top/.json?sort=top&t=all'>all</a>";
                         
-                        $("#reddit-content").append(hotLink+" "+newLink+" "+risingLink+" "+controversialLink+" "+topLink);
+                        var sublistLink="<div align='right' style='margin-top: -34px'><a href='index.html'>home</a> <a href='sub-list.html'>subreddit list</a></div>";
+                        
+                        $("#reddit-content").append('<p style="background: lightblue; margin-top: -22px;">'+hotLink+" "+newLink+" "+risingLink+" "+controversialLink+" "+topLink+sublistLink+'</p>');
                         
                         
                         var afterSub=destination.substring(3+masterSub.length+1);
@@ -83,18 +100,20 @@
                                 $("#reddit-content").append(hourContro+" "+dayContro+" "+weekContro+" "+monthContro+" "+yearContro+" "+allContro);
                             }
                         }
-                        else if(afterSub.substring(0,3)=="top") {
-                            $("#reddit-content").append('<br />');
-                            $("#reddit-content").append(hourTop+" "+dayTop+" "+weekTop+" "+monthTop+" "+yearTop+" "+allTop);
+                        
+                        if(afterSub.length>3) {
+                            if(afterSub.substring(0,3)=="top") {
+                                $("#reddit-content").append('<br />');
+                                $("#reddit-content").append(hourTop+" "+dayTop+" "+weekTop+" "+monthTop+" "+yearTop+" "+allTop);
+                            }
                         }
-                                
-                                    
-                        $("#reddit-content").append('<br />');
+                        
                     }
                 )
             }
         )
         
+        <!-- display comments specific to a post -->
         if(destinationURL.indexOf("/comments/")>-1) {
             $("#reddit-content").append('<h1>COMMENTS</h1>');
             
@@ -104,6 +123,7 @@
                     $.each(
                         result[1].data.children.slice(0, 50),
                         function (i, post) {
+                            
                             $("#reddit-content").append( '<br>' + post.data.body );
                             $("#reddit-content").append( '<hr>' );
                         }
@@ -112,13 +132,13 @@
             )
         }
         
+        <!-- display posts on a subreddit page -->
         $.getJSON(
             destinationURL,
             function foo(data) {
                 $.each(
                     data.data.children.slice(0, 50),
                     function (i, post) {
-
                         var destination=post.data.permalink;
                         var commentsURL='<a href="output.html?link='+destination+'.json">comments</a>';
                         
@@ -136,9 +156,9 @@
                         if(location.search.substring(9,12)=="all")
                             var subURL='<a href=output.html?link=/r/'+sub+'.json>['+sub+']</a> ';
                         
-                        $("#reddit-content").append( '<br>'+subURL+isNSFW+ post.data.title );
+                        $("#reddit-content").append(subURL+isNSFW+ post.data.title);
                         $("#reddit-content").append('<br>'+linkURL+commentsURL+' - '+post.data.ups);
-                        $("#reddit-content").append( '<hr>' );
+                        $("#reddit-content").append('<hr>');
                     }
                 )
             }
