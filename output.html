@@ -57,7 +57,7 @@
                             if(exactLoc.length>13) {
                                 if(exactLoc.substring(0,13)=="controversial") {
                                     var specificTime="";
-                                    if(location.search.length>41)
+                                    if(exactLoc>41)
                                         specificTime="/"+exactLoc.substring(41);
                                     sortedLoc="controversial"+specificTime;
                                 }
@@ -91,7 +91,6 @@
                         var sublistLink="<div align='right' style='margin-top: -34px'><a href='index.html'>home</a> <a href='sub-list.html'>subreddit list</a></div>";
                         
                         $("#reddit-content").append('<p style="background: lightblue; margin-top: -22px;">'+hotLink+" "+newLink+" "+risingLink+" "+controversialLink+" "+topLink+sublistLink+'</p>');
-                        
                         
                         var afterSub=destination.substring(3+masterSub.length+1);
                         if(afterSub.length>13) {
