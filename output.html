@@ -132,7 +132,36 @@
         }
         
         <!-- display posts on a subreddit page -->
-          
+        $.getJSON(
+            destinationURL,
+            function foo(data) {
+                $.each(
+                    data.data.children.slice(0, 50),
+                    function (i, post) {
+                        var destination=post.data.permalink;
+                        var commentsURL='<a href="output.html?link='+destination+'.json">comments</a>';
+                        
+                        var link=post.data.url;
+                        var linkURL='<a href='+link+'>link</a> - ';
+                        if(post.data.is_self)
+                            linkURL="";
+
+                        var isNSFW="";
+                        if(post.data.over_18)
+                            isNSFW="[NSFW] ";
+                        
+                        var sub=post.data.subreddit;
+                        var subURL="";
+                        if(location.search.substring(9,12)=="all")
+                            var subURL='<a href=output.html?link=/r/'+sub+'.json>['+sub+']</a> ';
+                        
+                        $("#reddit-content").append(subURL+isNSFW+ post.data.title);
+                        $("#reddit-content").append('<br>'+linkURL+commentsURL+' - '+post.data.ups);
+                        $("#reddit-content").append('<hr>');
+                    }
+                )
+            }
+        )
         
         </script>
     </body>
